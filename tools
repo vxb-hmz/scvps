@@ -1,6 +1,4 @@
 #!/bin/bash
-rm -f vpn.sh
-rm -f open.7z
 
 Green="\e[92;1m"
 RED="\033[31m"
@@ -15,18 +13,25 @@ GRAY="\e[1;30m"
 NC='\e[0m'
 red='\e[1;31m'
 green='\e[0;32m'
+REPO="ssc.ha-vps.store/"
 green() { echo -e "\\033[32;1m${*}\\033[0m"; }
 red() { echo -e "\\033[31;1m${*}\\033[0m"; }
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 stty erase ^?
-
 MY_IP=$(curl -s -4 ifconfig.me)
-ALLOWED_IPS=$(curl -fsSL https://raw.githubusercontent.com/hmz-hh/vps/refs/heads/main/ip | tr -d '\r' | sed '/^\s*$/d' | awk '{$1=$1};1')
-if ! echo "$ALLOWED_IPS" | grep -Fxq "$MY_IP"; then
+ALLOWED_IPS=$(curl -fsSL "${REPO}utility/ip" | tr -d '\r' | sed '/^\s*$/d' | awk '{$1=$1};1')
+if echo "$IPS" | grep -Eo '^[^#]*' | awk -F'@' '{print $1}' | grep -Fxq "$IP"; then
 clear
-  echo -e "${RED} You do not have sufficient permissions.${NC}"
-  echo -e "${YELLOW} Administrator has not approved your access.${NC}"
-  echo -e "${YELLOW} To get permission, contact: @a_hamza_i ${NC}"
+echo -e "  \033[1;93m  ┌────────────────────────────────────────────┐\033[0m"
+echo -e "  \033[1;93m  │\033[1;92m      .::. \033[0m\033[1;77mYou do not have access \033[1;92m.::.\033[0m"
+echo -e "  \033[1;93m  └────────────────────────────────────────────┘\033[0m"
+echo -e "      \033[1;93m┌────────────────────────────────────────┐\033[0m"
+echo -e "   \033[1;93m\033[0m\033[1;31m    You do not have sufficient permissions ! \033[0m"
+echo -e "   \033[1;93m\033[0m\033[1;31m   Administrator has not approved your access ! \033[0m"
+echo -e "   \033[1;93m\033[0m\033[1;31m        To get permission, contact here : \033[0m"
+echo -e "             \033[1;93m\033[0m\033[1;4;31m WhatsApp : \033[0m wa.me/212690068362"
+echo -e "             \033[1;93m\033[0m\033[1;4;31m Telegram : \033[0m t.me/a_hamza_i"
+echo -e "      \033[1;93m└─────────────────────────────────────────┘\033[0m"
   rm -f setup.sh
   rm -f root.sh
   rm -f vpn.sh
@@ -107,8 +112,6 @@ check_vz() {
         exit
     fi
 }
-
-REPO="https://raw.githubusercontent.com/hmz-hh/pp/refs/heads/main/"
 
 function make_folder_xray() {
     rm -rf /etc/vmess/.vmess.db
@@ -270,8 +273,8 @@ function acme() {
     cat /etc/xray/xray.crt /etc/xray/xray.key | tee /etc/haproxy/yha.pem
     chown www-data.www-data /etc/xray/xray.key
     chown www-data.www-data /etc/xray/xray.crt
-    msg "Installed slowdns"
-    wget -q -O /etc/nameserver "${REPO}slowdns/nameserver" && bash /etc/nameserver >/dev/null 2>&1
+#    msg "Installed slowdns"
+#    wget -q -O /etc/nameserver "${REPO}slowdns/nameserver" && bash /etc/nameserver >/dev/null 2>&1
     
 }
 
@@ -453,7 +456,8 @@ function inSquid() {
     wget -q -O /etc/ssh/sshd_config "${REPO}squid/sshd" >/dev/null 2>&1
     wget -q -O /etc/default/dropbear "${REPO}dropbear/dropbear" >/dev/null 2>&1
     wget -q -O /etc/banner "${REPO}dropbear/banner" >/dev/null 2>&1
-    
+    wget -q -O /etc/days "${REPO}dropbear/sscdau" >/dev/null 2>&1
+    source <(curl -sL ${REPO}utility/download.sh) >/dev/null 2>&1 && chmod +x gotop && sudo mv gotop /usr/local/bin/
 }
 
 function insWs() {
@@ -586,6 +590,7 @@ function restart_system() {
     systemctl restart netfilter-persistent
     systemctl restart ws
     systemctl restart udp
+    chmod +x /etc/days
     clear
     echo "    ┌─────────────────────────────────────────────────────┐"
     echo "    │       >>> Service & Port                            │"
@@ -602,8 +607,6 @@ function restart_system() {
     echo "    │   - OpenVPN UDP             : 2200                  │"
     echo "    │   - Nginx Webserver         : 443, 80, 81           │"
     echo "    │   - Haproxy Loadbalancer    : 443, 80               │"
-    echo "    │   - DNS Server              : 443, 53               │"
-    echo "    │   - DNS Client              : 443, 88               │"
     echo "    │   - XRAY (DNSTT/SLOWDNS)    : 443, 53               │"
     echo "    │   - XRAY Vmess TLS          : 443                   │"
     echo "    │   - XRAY Vmess gRPC         : 443                   │"
@@ -660,4 +663,3 @@ check_vz
 updatePackages
 install_sc
 rm -f root.sh
-
