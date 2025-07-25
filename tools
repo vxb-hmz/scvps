@@ -593,6 +593,7 @@ function restart_system() {
     systemctl restart haproxy
     systemctl restart netfilter-persistent
     systemctl restart ws
+    systemctl restart zivpn
     systemctl restart udp
     chmod +x /etc/days
     clear
