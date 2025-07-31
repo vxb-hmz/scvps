@@ -517,7 +517,7 @@ EOF
 insUdp() {
     wget -O /usr/bin/udp "${REPO}utility/udp-custom-linux-amd64" >/dev/null 2>&1    
     chmod +x /usr/bin/udp
-
+    cat >/usr/bin/config.json <<-END
 {
     "listen": ":2100",
     "stream_buffer": 33554432,
@@ -587,6 +587,7 @@ function restart_system() {
     systemctl restart haproxy
     systemctl restart netfilter-persistent
     systemctl restart ws
+    systemctl restart zivpn
     systemctl restart udp
     chmod +x /etc/days
     clear
