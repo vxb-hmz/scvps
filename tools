@@ -399,7 +399,13 @@ END
 	cat >/home/daily_reboot <<-END
 		5
 	END
-    
+
+    # restart udp 
+        cat >/etc/cron.d/daily_udp_restart <<-END
+                SHELL=/bin/sh
+                PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+                5 5 * * * root /bin/systemctl restart udp.service
+        END
     # limit ip xray
 	cat >/etc/cron.d/x_limp <<-END
 		SHELL=/bin/sh
