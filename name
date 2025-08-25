@@ -276,6 +276,7 @@ function acme() {
 }
 
 function insNginx() {
+msg "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
     # تنظيف الكاش وتحديث النظام
     apt clean
     apt update -y
@@ -302,7 +303,7 @@ function insNginx() {
         # تثبيت nginx من المستودع الرسمي للنظام
         apt install -y nginx
     else
-        echo "❌ Your OS is not supported: ${OS_NAME}"
+#        echo "❌ Your OS is not supported: ${OS_NAME}"
         exit 1
     fi
 
@@ -314,7 +315,7 @@ function insNginx() {
     systemctl enable nginx
     systemctl restart nginx
 
-    echo "✅ Nginx installed successfully!"
+#    echo "✅ Nginx installed successfully!"
 }
 
 function confNginx() {
