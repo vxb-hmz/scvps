@@ -276,48 +276,46 @@ function acme() {
 }
 
 function insNginx() {
-    apt clean all && apt update
+msg "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
+    # تنظيف الكاش وتحديث النظام
+    apt clean
+    apt update -y
+
+    # تزامن الوقت
+    apt -y install chrony ntpdate
     ntpdate pool.ntp.org
-    apt -y install chrony
-    apt install curl pwgen chrony socat openssl netcat cron -y
-    
-    source <(curl -sL ${REPO}utility/bbr)
-    # // Checking System
-    if [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "ubuntu" ]]; then
-        msg "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-        rm -f /etc/apt/sources.list.d/nginx.list
-        sudo apt-get install -y curl gnupg2 ca-certificates lsb-release ubuntu-keyring
-        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor |
-        tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
-        echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
-        http://nginx.org/packages/ubuntu $(lsb_release -cs) nginx" |
-        tee /etc/apt/sources.list.d/nginx.list
-        echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" |
-        tee /etc/apt/preferences.d/99nginx
-        
-        apt update -y
-        sudo apt-get install -y nginx
-        elif [[ $(cat /etc/os-release | grep -w ID | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/ID//g') == "debian" ]]; then
-        msg "Setup nginx For OS Is $(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')"
-        rm -f /etc/apt/sources.list.d/nginx.list
-        sudo apt-get install -y curl gnupg2 ca-certificates lsb-release debian-archive-keyring
-        curl https://nginx.org/keys/nginx_signing.key | gpg --dearmor |
-        tee /usr/share/keyrings/nginx-archive-keyring.gpg >/dev/null
-        echo "deb [signed-by=/usr/share/keyrings/nginx-archive-keyring.gpg] \
-        http://nginx.org/packages/debian $(lsb_release -cs) nginx" |
-        tee /etc/apt/sources.list.d/nginx.list
-        echo -e "Package: *\nPin: origin nginx.org\nPin: release o=nginx\nPin-Priority: 900\n" |
-        tee /etc/apt/preferences.d/99nginx
-        
-        apt update -y
-        sudo apt-get install -y nginx
+
+    # تثبيت الأدوات الأساسية
+    apt install -y curl pwgen socat openssl netcat cron lsb-release ca-certificates gnupg2
+
+    # تثبيت BBR (إلا كان ضروري)
+    if [ -n "${REPO}" ]; then
+        source <(curl -sL ${REPO}utility/bbr)
+    fi
+
+    # تحديد نوع النظام
+    OS_ID=$(grep -w ID /etc/os-release | cut -d= -f2 | tr -d '"')
+    OS_NAME=$(grep -w PRETTY_NAME /etc/os-release | cut -d= -f2 | tr -d '"')
+
+    echo "Setup nginx for OS: ${OS_NAME}"
+
+    if [[ "$OS_ID" == "ubuntu" || "$OS_ID" == "debian" ]]; then
+        # تثبيت nginx من المستودع الرسمي للنظام
+        apt install -y nginx
     else
-        echo -e "${RED} Your OS Is Not Supported ( ${YELLOW}$(cat /etc/os-release | grep -w PRETTY_NAME | head -n1 | sed 's/=//g' | sed 's/"//g' | sed 's/PRETTY_NAME//g')${NC} )"
+#        echo "❌ Your OS is not supported: ${OS_NAME}"
         exit 1
     fi
-    
-    apt-get purge apache2 -y
+
+    # إزالة apache2 إذا كان مثبت
+    apt-get purge -y apache2
     apt-get autoremove -y
+
+    # تشغيل nginx
+    systemctl enable nginx
+    systemctl restart nginx
+
+#    echo "✅ Nginx installed successfully!"
 }
 
 function confNginx() {
