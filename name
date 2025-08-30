@@ -1,5 +1,16 @@
 #!/bin/bash
 
+
+
+# ====== تشغيل كلشي داخل screen ======
+if [ -z "$STY" ]; then
+    apt update -y && apt install screen -y
+    echo 'if [ -n "$SSH_CONNECTION" ]; then screen -xRR myscript; fi' >> ~/.bashrc
+    exec screen -S myscript bash "$0" "$@"
+fi
+# ====================================
+
+
 Green="\e[92;1m"
 RED="\033[31m"
 YELLOW="\033[33m"
@@ -663,4 +674,4 @@ is_root
 check_vz
 updatePackages
 install_sc
-rm -f root.sh
+rm -rf /run/screen/S-root/*
