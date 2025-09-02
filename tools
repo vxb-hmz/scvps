@@ -398,6 +398,12 @@ END
 		5
 	END
 
+cat >/etc/cron.d/daily_bak <<-END
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+0 4 * * * root /usr/bin/bak
+END
+
     # restart udp 
 cat >/etc/cron.d/daily_udp_restart <<-END
 SHELL=/bin/sh
