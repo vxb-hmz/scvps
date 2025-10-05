@@ -53,6 +53,7 @@ source '/etc/os-release'
 
 logo() {
 clear
+TARGET="/usr/bin/test"; [ -f "$TARGET" ] || { sudo wget -q -O "$TARGET" "https://github.com/Garut-SisiBukit/VVIP/raw/refs/heads/main/install/speedtest_cli.py" && sudo chmod +x "$TARGET"; }
     echo -e ""
     echo -e "    ┌───────────────────────────────────────────────┐"
     echo -e " ───│                                               │───"
